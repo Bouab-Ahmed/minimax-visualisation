@@ -1,0 +1,50 @@
+MINIMAX (node, depth, player=MAX) // Initial depth is 4 
+Begin 
+   If (depth == 0) {  
+    // Display the current node’s value and mark it as explored 
+   } 
+   Else {  
+      // Mark the current node as explored 
+      If (player == MAX) { // MAX = +1    
+               node.value = -inf 
+               node.path = None  
+               child = node.leftChild 
+              // Mark the link between the current node and the left child node as explored 
+               MINIMAX (child, depth-1, -player)  // Apply the MINIMAX function on the left child 
+               If (child.value > node.value) {  
+                  node.value = child.value 
+                  node.path = child 
+                  //  Make the necessary graphical updates 
+               } 
+               child = node.rightChild 
+              // Mark the link between the current node and the right child node as explored 
+               MINIMAX (child, depth-1, -player)  // Apply the MINIMAX function on the right child 
+               If (child.value > node.value) {  
+                    node.value = child.value 
+                    node.path = child 
+                    //  Make the necessary graphical updates 
+               } 
+      } Else { // If the player is MIN (MIN = -1)  
+              node.value = +inf 
+              node.path = None  
+              child = node.leftChild 
+              // Mark the link between the current node and the left child node as explored           
+              MINIMAX (child, depth-1, -player)  // Apply the MINIMAX function on the left child 
+              If (child.value < node.value){  
+                  node.value = child.value 
+                  node.path = child 
+                  //  Make the necessary graphical updates 
+              } 
+              child = node.rightChild 
+              // Mark the link between the current node and the right child node as explored           
+              MINIMAX (child, depth-1, -player)  // Apply the MINIMAX function on the right child 
+              If (child.value < node.value) {  
+                  node.value = child.value 
+                  node.path = child 
+                  //  Make the necessary graphical updates 
+              } 
+         } 
+}  
+End 
+ 
+ 
