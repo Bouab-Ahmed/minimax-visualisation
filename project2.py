@@ -16,39 +16,102 @@ class BinaryTreeNode:
 class Play:
     @staticmethod
     def minimax(node, depth, player=MAX):
-        if depth == 0:
+        if depth == 0:  # terminal node
             return node.value
 
+        # if node.parent is None:
+        #     node.display((82, 82, 82), player, True)
+        #     node.display_lines((82, 82, 82))
+        #     pygame.display.update()
+        #     time.sleep(1)
+
         if player == MAX:
-            node.value = -inf
+            max_value = -inf
+            node.value = max_value
             node.path = None
+            node.display((49, 66, 78), player, True)
+            node.display_lines((49, 66, 78))
+            pygame.display.update()
             left_child = node.leftChild
-            Play.minimax(left_child, depth=depth - 1, player=MIN)
-            if left_child.value > node.value:
-                node.value = left_child.value
-                node.path = left_child
             right_child = node.rightChild
-            Play.minimax(right_child, depth=depth - 1, player=MIN)
-            if right_child.value > node.value:
-                node.value = right_child.value
-                node.path = right_child
+            for child in [left_child, right_child]:
+                # Marking current node as visited (in blue)
+                child_value = Play.minimax(child, depth=depth - 1, player=MIN)
+                time.sleep(1)
+                child.display((190, 51, 26), player, True)
+                child.display_lines((190, 51, 26))
+                pygame.display.update()
+
+                if child_value > max_value:
+                    child.display((190, 51, 26), player, True)
+                    child.display_lines((190, 51, 26))
+                    pygame.display.update()
+                    max_value = child_value
+                    node.path = child
+            print(f"node {node.value} childred {left_child.value} {right_child.value}")
+            node.value = max_value
+            if node.parent is None:
+                node.display((49, 66, 78), player, True)
+                node.display_lines((82, 82, 82))
+                pygame.display.update()
+            if max_value == left_child.value:
+                right_child.display((49, 66, 78), player, True)
+                right_child.display_lines((49, 66, 78))
+                pygame.display.update()
+                left_child.display((190, 51, 26), player, True)
+                left_child.display_lines((190, 51, 26))
+                pygame.display.update()
+            else:
+                left_child.display((49, 66, 78), player, True)
+                left_child.display_lines((49, 66, 78))
+                pygame.display.update()
+                right_child.display((190, 51, 26), player, True)
+                right_child.display_lines((190, 51, 26))
+                pygame.display.update()
+            return node.value
+
         else:
-            node.value = +inf
+            min_value = +inf
+            node.value = min_value
             node.path = None
+            node.display((49, 66, 78), player, True)
+            node.display_lines((82, 82, 82))
+            pygame.display.update()
             left_child = node.leftChild
-            Play.minimax(left_child, depth=depth - 1, player=MAX)
-            if left_child.value < node.value:
-                node.value = left_child.value
-                node.path = left_child
             right_child = node.rightChild
-            Play.minimax(right_child, depth=depth - 1, player=MAX)
-            if right_child.value < node.value:
-                node.value = right_child.value
-                node.path = right_child
-        print(node.path.value)
+            for child in [left_child, right_child]:
+                child_value = Play.minimax(child, depth=depth - 1, player=MAX)
+                time.sleep(1)
+                child.display((49, 66, 78), player, True)
+                child.display_lines((49, 66, 78))
+                pygame.display.update()
+
+                if child_value < min_value:
+                    child.display((190, 51, 26), player, True)
+                    child.display_lines((190, 51, 26))
+                    pygame.display.update()
+                    min_value = child_value
+                    node.path = child
+            print(f"node {node.value} childred {left_child.value} {right_child.value}")
+            node.value = min_value
+            if min_value == left_child.value:
+                right_child.display((49, 66, 78), player, True)
+                right_child.display_lines((49, 66, 78))
+                pygame.display.update()
+                left_child.display((190, 51, 26), player, True)
+                left_child.display_lines((190, 51, 26))
+                pygame.display.update()
+            else:
+                left_child.display((49, 66, 78), player, True)
+                left_child.display_lines((49, 66, 78))
+                pygame.display.update()
+                right_child.display((190, 51, 26), player, True)
+                right_child.display_lines((190, 51, 26))
+                pygame.display.update()
+            return node.value
 
     @staticmethod
-    def minimaxAlphaBetaPruning(screen, node, depth, alpha=-inf, beta=+inf, player=MAX):
+    def minimaxAlphaBetaPruning(node, depth, alpha=-inf, beta=+inf, player=MAX):
         if depth == 0:
             return node.value
 
@@ -97,7 +160,7 @@ class Play:
 
 
 class Node:
-    def __init__(self, parent=None, side=None, depth=4, value=None):
+    def __init__(self, parent=None, side=None, depth=4, value=None, id=0):
         self.parent = parent
         self.value = value
         self.path = None
@@ -105,6 +168,7 @@ class Node:
         self.rightChild = None
         self.position = [(0, 0), (0, 0), (0, 0)]
         self.lines_position = []
+        self.id = id
 
         if self.parent is None:
             # Root node
@@ -113,8 +177,6 @@ class Node:
                 (w // 2 - 30, 90),
                 (w // 2 + 30, 90),
             ]
-            print(f"Root node position: {self.position}")
-            print()
 
             self.lines_position = [
                 [],
@@ -134,12 +196,8 @@ class Node:
                 ],
             ]
 
-            print(self.lines_position)
-
         else:
-            print(depth)
             offset = 85 * 2 ** (depth - 1)
-            print(offset)
             if side == "L":
                 if depth % 2 == 0:
                     self.position = [
@@ -219,9 +277,6 @@ class Node:
                             ),
                         ],
                     ]
-                print(f"Left child node position: {self.position}")
-                print()
-                print(f"depth {depth}")
             elif side == "R":
                 if depth % 2 == 0:
                     self.position = [
@@ -301,24 +356,18 @@ class Node:
                             ),
                         ],
                     ]
-                print(f"Right child node position: {self.position}")
-                print()
-                print(f"depth {depth}")
 
-    def display(self, color, player):
-        font = pygame.font.Font(None, 17)
+    def display(self, color, player, print_values):
         pygame.draw.polygon(screen, color, self.position)
         triangle_rect = pygame.draw.polygon(screen, color, self.position)
 
-        text_x = triangle_rect.centerx - font.size(str(self.value))[0] // 2
-        text_y = (
-            triangle_rect.centery
-            - font.size(str(self.value))[1] // 2
-            + (5 if player == MAX else -5)
-        )
+        if print_values:
+            font = pygame.font.Font(None, 17)
+            text_x = triangle_rect.centerx - font.size(str(self.value))[0] // 2
+            text_y = triangle_rect.centery - font.size(str(self.value))[1] // 2 + 5
 
-        text_surf = font.render(str(self.value), True, (255, 255, 255))
-        screen.blit(text_surf, (text_x, text_y))
+            text_surf = font.render(str(self.value), True, (255, 255, 255))
+            screen.blit(text_surf, (text_x, text_y))
 
     def display_lines(self, color):
         if self.parent is None:
@@ -330,7 +379,7 @@ class Node:
                     color,
                     self.parent.lines_position[1][0],
                     self.lines_position[0][0],
-                    2,
+                    3,
                 )
             elif self == self.parent.rightChild:
                 pygame.draw.line(
@@ -338,7 +387,7 @@ class Node:
                     color,
                     self.parent.lines_position[1][1],
                     self.lines_position[0][0],
-                    2,
+                    3,
                 )
 
 
@@ -351,18 +400,19 @@ class Tree:
             node.value = values.pop(0)
             return
         else:
-            node.leftChild = Node(node, "L", depth - 1, None)
-            node.rightChild = Node(node, "R", depth - 1, None)
+            id = node.id
+            node.leftChild = Node(node, "L", depth - 1, None, id + 1)
+            node.rightChild = Node(node, "R", depth - 1, None, id + 2)
             self.createEmptyTree(node.leftChild, depth - 1, values)
             self.createEmptyTree(node.rightChild, depth - 1, values)
 
     def drawTree(self, node, depth, player):
         if depth == 0:
-            node.display((82, 82, 82), player)
+            node.display((82, 82, 82), player, print_values=True)
             node.display_lines((82, 82, 82))
             return
         else:
-            node.display((82, 82, 82), player)
+            node.display((82, 82, 82), player, print_values=False)
             node.display_lines((82, 82, 82))
             self.drawTree(node.leftChild, depth - 1, player * -1)
             self.drawTree(node.rightChild, depth - 1, player * -1)
@@ -410,15 +460,24 @@ def main():
                 running = False
 
         if draw is True:
+            # draw ruler
+            for i in range(0, w, 50):
+                font = pygame.font.Font(None, 17)
+                text_surf = font.render(str(i), True, (0, 0, 0))
+                screen.blit(text_surf, (i, 5))
+
+            for i in range(0, h, 50):
+                font = pygame.font.Font(None, 17)
+                text_surf = font.render(str(i), True, (0, 0, 0))
+                screen.blit(text_surf, (5, i))
+
             tree.createEmptyTree(tree.root_node, depth, values)
             # tree.drawTree(tree.root_node, depth, player=MAX)
 
-            game = Play()
-            game.minimaxAlphaBetaPruning(
-                screen, tree.root_node, depth, alpha=-inf, beta=+inf, player=MAX
-            )
-
             tree.drawTree(tree.root_node, depth, player=MAX)
+            time.sleep(1.5)
+            game = Play()
+            game.minimax(tree.root_node, depth, player=MAX)
 
             pygame.display.update()
             time.sleep(1.5)
